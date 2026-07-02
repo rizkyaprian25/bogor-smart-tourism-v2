@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+{% block title %}Detail Riwayat — Bogor Smart Tourism{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/history-detail.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="action-row">
+    <a href="/history" class="btn-back">← Kembali ke Riwayat</a>
+  </div>
+
+  <!-- Session Banner -->
+  <div class="session-banner">
+    <div>
+      <div class="session-title">Detail Sesi — {{ h.timestamp[:16].replace('T',' ') }}</div>
+      <div class="session-id">ID: {{ h.id }}</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+      <div class="session-chips">
+        <span class="session-chip">{{ h.hari }}</span>
+        <span class="session-chip">Berangkat {{ h.jam_berangkat }}</span>
+        <span class="session-chip">{{ h.total_waktu_menit | round(1) }} menit</span>
+        <span class="session-chip">{{ h.total_jarak_km | round(2) }} km</span>
+        {% if h.has_tomtom %}
+        <span class="session-chip tomtom">TomTom</span>
+        {% endif %}
+        {% if h.vehicle_type %}
+        <span class="session-chip">{{ h.vehicle_icon|default('') }} {{ h.vehicle_type|default('mobil')|title }}</span>
+        {% endif %}
+      </div>
+      <a href="/dashboard/{{ h.id }}" class="btn-dashboard">
+        📊 Dashboard Teknikal
+      </a>
+    </div>
+  </div>
+
+  <!-- Rute Optimal -->
+  <div class="section-header">
+    <h2>Urutan Rute Optimal</h2>
+  </div>
+
+  <div class="route-flow">
+    {% for node in h.rute_optimal %}
+      <span class="route-node-badge {{ 'origin' if node.is_origin else 'spot' }}">
+        {{ node.name }}
+      </span>
+      {% if not loop.last %}<span class="route-flow-arrow">→</span>{% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- Peta -->
+  <div class="section-header">
+    <h2>Peta Rute</h2>
+  </div>
+  <div class="map-box" id="map"></div>
+
+  <!-- Detail Segmen -->
+  <div class="section-header">
+    <h2>Detail Segmen Perjalanan</h2>
+    {% if h.has_tomtom %}
+    <span class="badge tomtom-badge">TomTom Aktif</span>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <table class="seg-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Dari</th>
+          <th>Ke</th>
+          <th>Berangkat</th>
+          <th>Waktu Tempuh</th>
+          <th>Status</th>
+          <th>Tiba</th>
+          <th>Jarak</th>
+          <th>Kunjungan</th>
+          <th>Berangkat Lagi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for seg in h.segments %}
+        <tr {% if seg.is_tomtom %}class="tomtom-row"{% endif %}>
+          <td class="step-num">{{ loop.index }}</td>
+          <td>{{ seg.from_name }}</td>
+          <td><strong>{{ seg.to_name }}</strong></td>
+          <td class="mono">{{ seg.departure }}</td>
+          <td>
+            {% if seg.is_tomtom %}
+              <span class="badge badge-tomtom">TomTom {{ seg.travel_time }} mnt</span>
+            {% else %}
+              <span class="badge badge-rf">RF {{ seg.travel_time }} mnt</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if seg.is_tomtom %}
+              <span class="text-muted">—</span>
+            {% elif seg.congestion_label is defined and seg.congestion_label %}
+              <span class="congestion-badge {{ seg.congestion_class }}">{{ seg.congestion_label }}</span>
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+          <td class="mono">{{ seg.arrival }}</td>
+          <td><span class="badge badge-distance">{{ "%.2f"|format(seg.distance_km) }} km</span></td>
+          <td>
+            {% if seg.service_time > 0 %}
+              <span class="badge badge-service">{{ seg.service_time }} mnt</span>
+            {% else %}<span class="text-muted">—</span>{% endif %}
+          </td>
+          <td>
+            {% if not seg.is_depot_arrival %}
+              <span class="mono">{{ seg.depart_next }}</span>
+            {% else %}<span class="text-muted">Selesai</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4" class="text-right">TOTAL</td>
+          <td><span class="badge badge-rf">{{ h.total_waktu_menit | round(1) }} mnt</span></td>
+          <td></td>
+          <td colspan="2"><span class="badge badge-distance">{{ h.total_jarak_km | round(2) }} km</span></td>
+          <td colspan="2"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Perbandingan Rute -->
+  <div class="section-header">
+    <h2>Perbandingan Semua Kemungkinan Rute</h2>
+    <span class="badge">{{ h.total_permutations|default(0) }} permutasi</span>
+  </div>
+
+  <div class="savings-card">
+    <div class="savings-content">
+      <div class="savings-title">
+        {% if h.has_tomtom %}
+        Penghematan: {{ "%.1f"|format(h.savings_minutes|default(0)) }} menit
+        (Termasuk TomTom {{ h.tomtom_time|default(0) }} menit)
+        {% else %}
+        Penghematan: {{ "%.1f"|format(h.savings_minutes|default(0)) }} menit
+        ({{ "%.1f"|format(h.savings_percent|default(0)) }}% lebih cepat)
+        {% endif %}
+      </div>
+      <div class="savings-details">
+        <div class="savings-item">
+          <span class="savings-label">Tercepat:</span>
+          <span class="savings-value good">{{ "%.1f"|format(h.optimal_time|default(0)) }} mnt</span>
+        </div>
+        <div class="savings-item">
+          <span class="savings-label">Terlambat:</span>
+          <span class="savings-value bad">{{ "%.1f"|format(h.worst_time|default(0)) }} mnt</span>
+        </div>
+        <div class="savings-item">
+          <span class="savings-label">Selisih:</span>
+          <span class="savings-value">{{ "%.1f"|format(h.savings_minutes|default(0)) }} mnt</span>
+        </div>
+        {% if h.has_tomtom %}
+        <div class="savings-item">
+          <span class="savings-label">TomTom:</span>
+          <span class="savings-value">{{ h.tomtom_time|default(0) }} mnt</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table class="routes-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Rute</th>
+          <th>Total Waktu</th>
+          <th>Jarak</th>
+          <th>Selisih</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for route_item in h.display_routes|default([]) %}
+        {% set route = route_item if route_item is mapping else {} %}
+        {% set rank = loop.index %}
+        {% set time_diff = (route.total_time|default(0) - h.optimal_time|default(0)) %}
+        {% set diff_percent = (time_diff / h.optimal_time * 100) if h.optimal_time|default(0) > 0 else 0 %}
+        <tr class="{% if route.is_optimal|default(false) %}optimal-row{% elif route.is_worst|default(false) %}worst-row{% endif %}">
+          <td>
+            {% if route.is_optimal|default(false) %}
+            <span class="rank-badge rank-1">1</span>
+            {% elif route.is_worst|default(false) %}
+            <span class="rank-badge rank-last">{{ rank }}</span>
+            {% elif rank <= 3 %}
+            <span class="rank-badge rank-top">{{ rank }}</span>
+            {% else %}
+            <span class="rank-badge rank-other">{{ rank }}</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="route-path">
+              {% for name in route.route_short|default([]) %}
+                <span class="route-node-item">{{ name }}</span>
+                {% if not loop.last %}<span class="route-path-arrow">→</span>{% endif %}
+              {% endfor %}
+            </div>
+          </td>
+          <td class="time-cell">
+            <span class="{% if route.is_optimal|default(false) %}optimal-time{% endif %}">
+              {{ "%.1f"|format(route.total_time|default(0)) }} mnt
+            </span>
+            {% if h.has_tomtom and route.tomtom_time is defined and route.rf_time is defined %}
+            <br><small class="time-breakdown">(TomTom {{ route.tomtom_time }} + RF {{ "%.2f"|format(route.rf_time) }})</small>
+            {% endif %}
+          </td>
+          <td class="time-cell">{{ "%.2f"|format(route.total_distance|default(0)) }} km</td>
+          <td>
+            {% if route.is_optimal|default(false) %}
+            <span class="diff-badge optimal">OPTIMAL</span>
+            {% else %}
+            <span class="diff-badge non-optimal">+{{ "%.1f"|format(time_diff) }} mnt ({{ "%.1f"|format(diff_percent) }}%)</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" class="text-center text-muted" style="padding:40px;">Data perbandingan rute belum tersedia.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="routes-footer">
+      <p>Menampilkan {{ h.display_routes|default([])|length }} rute dari (total {{ h.total_permutations|default(0) }} permutasi)</p>
+      <p class="text-muted">Waktu = total perjalanan + waktu tunggu | Rute tidak valid = tempat tutup / waktu tunggu > 15 menit</p>
+    </div>
+  </div>
+
+  <!-- Info Tambahan -->
+  <div class="info-row">
+    <div class="info-item">
+      <div class="info-label">Solver</div>
+      <div class="info-value">{{ h.solver_used or '-' }}</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">Tipe Hari</div>
+      <div class="info-value">{{ h.hari }}</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">Jam Berangkat</div>
+      <div class="info-value mono">{{ h.jam_berangkat }}</div>
+    </div>
+    {% if h.has_tomtom %}
+    <div class="info-item">
+      <div class="info-label">TomTom</div>
+      <div class="info-value">{{ h.tomtom_time|default(0) }} menit</div>
+    </div>
+    {% endif %}
+    {% if h.vehicle_type %}
+    <div class="info-item">
+      <div class="info-label">Kendaraan</div>
+      <div class="info-value">{{ h.vehicle_icon|default('') }} {{ h.vehicle_type|default('mobil')|title }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  window.HISTORY_DETAIL = {
+    nodesInfo: {{ h.rute_optimal | tojson }},
+    segments: {{ h.segments | tojson }}
+  };
+</script>
+<script src="{{ url_for('static', filename='js/history-detail.js') }}"></script>
+{% endblock %}

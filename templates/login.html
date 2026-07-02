@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Masuk — Bogor Smart Tourism{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="auth-card">
+
+    <div class="auth-header">
+      <h2>Masuk</h2>
+      <p>Bogor Smart Tourism</p>
+    </div>
+
+    <div class="auth-form">
+      <div class="form-field">
+        <label>Email</label>
+        <input id="email" type="email" placeholder="email@example.com" autocomplete="email">
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <input id="password" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+
+      <div id="errorMsg" class="error-msg" style="display:none;"></div>
+
+      <button class="btn-auth" onclick="doLogin()">Masuk</button>
+    </div>
+
+    <p class="auth-footer">
+      Belum punya akun? <a href="/register">Daftar</a>
+    </p>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

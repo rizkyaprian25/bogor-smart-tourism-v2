@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Perencanaan Itinerary — Bogor Smart Tourism{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="layout">
+  
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- Waktu Real-Time -->
+    <div class="sidebar-section">
+      <div class="section-label">Waktu Keberangkatan</div>
+      <div class="realtime-box">
+        <div class="realtime-dot"></div>
+        <div class="realtime-info">
+          <div class="realtime-time" id="realtimeClock">--:--</div>
+          <div class="realtime-day" id="realtimeDay">Memuat...</div>
+        </div>
+      </div>
+      <p class="info-text">Hari & jam otomatis dari waktu WIB sekarang.</p>
+    </div>
+
+    <!-- Titik Awal (TomTom) -->
+    <div class="sidebar-section">
+      <div class="section-label">Titik Awal Perjalanan</div>
+      
+      <div class="tomtom-box">
+        <div class="tomtom-header">
+          <span class="tomtom-title">TomTom Real-Time</span>
+          <label class="toggle-wrap">
+            <span class="toggle-label">Aktif</span>
+            <div class="toggle-switch" id="tomtomToggle" onclick="toggleTomTom()">
+              <div class="toggle-knob"></div>
+            </div>
+          </label>
+        </div>
+
+        <div class="tomtom-body" id="tomtomBody">
+          <button class="locate-btn" id="locateBtn" onclick="detectLocation()">
+            Deteksi Lokasi Saya
+          </button>
+
+          <div class="coords-group">
+            <div class="coord-field">
+              <label>Latitude</label>
+              <input type="number" id="originLat" placeholder="-6.59..." step="0.0001" oninput="onCoordsManual()">
+            </div>
+            <div class="coord-field">
+              <label>Longitude</label>
+              <input type="number" id="originLon" placeholder="106.7..." step="0.0001" oninput="onCoordsManual()">
+            </div>
+          </div>
+
+          <div class="coords-display" id="coordsDisplay" style="display:none;">
+            📍 <span id="coordsText">-</span>
+          </div>
+
+          <!-- Pilihan Kendaraan -->
+          <div class="vehicle-selector">
+            <span class="vehicle-label">Kendaraan</span>
+            <div class="vehicle-options">
+              <label class="vehicle-option">
+                <input type="radio" name="vehicleType" value="mobil" checked onchange="setVehicleType('mobil')">
+                <span>🚗 Mobil</span>
+              </label>
+              <label class="vehicle-option">
+                <input type="radio" name="vehicleType" value="motor" onchange="setVehicleType('motor')">
+                <span>🛵 Motor</span>
+              </label>
+            </div>
+          </div>
+
+          <p class="tomtom-note">Sistem otomatis memilih wisata pertama terbaik dari daftar Anda.</p>
+        </div>
+
+        <div id="tomtomOffInfo" class="tomtom-off-info">
+          TomTom nonaktif — mulai dari wisata pertama yang dipilih.
+        </div>
+      </div>
+    </div>
+
+    <!-- Pilih Destinasi -->
+    <div class="sidebar-section">
+      <div class="section-label">
+        Pilih Destinasi
+        <span class="section-hint">(min. {{ config.MIN_DESTINATIONS }} · maks. {{ config.MAX_DESTINATIONS }})</span>
+      </div>
+
+      <div class="search-wrapper">
+        <input type="text" class="search-input" id="searchInput" placeholder="Cari destinasi...">
+      </div>
+
+      <div class="dest-list" id="destList">
+        {% for spot in spots %}
+        <div class="dest-item" data-id="{{ spot.ID }}" data-name="{{ spot.Nama_Tempat }}" data-category="{{ spot.Kategori }}">
+          <label class="dest-header" for="dest-{{ spot.ID }}">
+            <input type="checkbox" class="dest-check" id="dest-{{ spot.ID }}" value="{{ spot.ID }}">
+            <span class="dest-checkbox"></span>
+            <span class="dest-number">{{ spot.ID }}</span>
+            <span class="dest-info">
+              <span class="dest-name">{{ spot.Nama_Tempat }}</span>
+              <span class="dest-category">{{ spot.Kategori }}</span>
+            </span>
+          </label>
+          <div class="dest-service">
+            <div class="service-label">Durasi Kunjungan (menit)</div>
+            <div class="service-input-group">
+              <input type="number" class="service-input" id="service-{{ spot.ID }}" value="60" min="15" max="360" step="15">
+              <button type="button" class="preset-btn" onclick="setServiceTime({{ spot.ID }}, 60)">1j</button>
+              <button type="button" class="preset-btn" onclick="setServiceTime({{ spot.ID }}, 90)">1.5j</button>
+              <button type="button" class="preset-btn" onclick="setServiceTime({{ spot.ID }}, 120)">2j</button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="selected-info">
+        <span>Dipilih:</span>
+        <span class="selected-count" id="selectedCount">0</span>
+        <span>/ {{ config.MAX_DESTINATIONS }}</span>
+      </div>
+
+      <button class="btn-plan" id="planButton" onclick="planTrip()">
+        Rencanakan Itinerary
+      </button>
+    </div>
+
+  </div>
+
+  <!-- MAP -->
+  <div class="map-container">
+    <div id="map"></div>
+    <div class="map-legend" id="mapLegend">
+      <div class="legend-item" id="legendOrigin" style="display:none;">
+        <span class="legend-dot origin"></span>
+        <span>Titik Awal Anda</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot spot"></span>
+        <span>Destinasi Wisata</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Pass config ke JS
+  window.APP_CONFIG = {
+    MIN_DESTINATIONS: {{ config.MIN_DESTINATIONS }},
+    MAX_DESTINATIONS: {{ config.MAX_DESTINATIONS }}
+  };
+</script>
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}

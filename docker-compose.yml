@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: bogor-smart-tourism-v2
+    ports:
+      - "5001:5000"
+    volumes:
+      - .:/app
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./plots:/app/plots
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Jakarta
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    networks:
+      - bogor-network
+
+networks:
+  bogor-network:
+    driver: bridge

@@ -1,0 +1,238 @@
+/* ============================================================
+   HISTORY PAGE
+   ============================================================ */
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.history-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: box-shadow 0.15s;
+}
+
+.history-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.history-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.history-timestamp {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.history-chips {
+  display: flex;
+  gap: 6px;
+}
+
+.chip {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-light);
+}
+
+.history-route {
+  margin-bottom: 14px;
+}
+
+.history-route-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.history-route-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.route-node-item {
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.route-arrow {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.history-card-footer {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  align-items: center;
+}
+
+.history-metrics {
+  display: flex;
+  gap: 20px;
+}
+
+.history-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metric-label {
+  font-size: 0.62rem;
+  color: var(--muted);
+}
+
+.metric-value {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.history-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.btn-detail {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 16px;
+  border-radius: 18px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.btn-detail:hover {
+  background: #1d4ed8;
+}
+
+.btn-delete {
+  padding: 7px 16px;
+  border-radius: 18px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-delete:hover {
+  background: #dc2626;
+  color: white;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn-primary {
+  display: inline-flex;
+  padding: 8px 20px;
+  border-radius: 18px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(2px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-box {
+  background: white;
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.modal-box h3 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+  color: #dc2626;
+}
+
+.modal-box p {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn-cancel {
+  padding: 8px 20px;
+  border-radius: 18px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.btn-confirm-delete {
+  padding: 8px 20px;
+  border-radius: 18px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  background: #dc2626;
+  color: white;
+  border: none;
+  cursor: pointer;
+}

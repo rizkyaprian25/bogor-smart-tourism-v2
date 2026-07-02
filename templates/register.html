@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Daftar — Bogor Smart Tourism{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="auth-card">
+
+    <div class="auth-header">
+      <h2>Daftar Akun</h2>
+      <p>Bogor Smart Tourism</p>
+    </div>
+
+    <div class="auth-form">
+      <div class="form-field">
+        <label>Username</label>
+        <input id="username" type="text" placeholder="Nama Anda" autocomplete="username">
+      </div>
+      <div class="form-field">
+        <label>Email</label>
+        <input id="email" type="email" placeholder="email@example.com" autocomplete="email">
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <input id="password" type="password" placeholder="Minimal 6 karakter" autocomplete="new-password">
+      </div>
+
+      <div id="errorMsg" class="error-msg" style="display:none;"></div>
+      <div id="successMsg" class="success-msg" style="display:none;"></div>
+
+      <button class="btn-auth" onclick="doRegister()">Daftar</button>
+    </div>
+
+    <p class="auth-footer">
+      Sudah punya akun? <a href="/login">Masuk</a>
+    </p>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

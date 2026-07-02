@@ -1,0 +1,381 @@
+/* ============================================================
+   HISTORY DETAIL PAGE
+   ============================================================ */
+
+.action-row {
+  margin-bottom: 20px;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 18px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: white;
+  color: var(--text);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  transition: all 0.15s;
+}
+
+.btn-back:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* ── Dashboard Button ─────────────────────── */
+.btn-dashboard {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #2563eb;
+  color: white;
+  text-decoration: none;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-dashboard:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* ── Session Banner ───────────────────────── */
+.session-banner {
+  background: #0f172a;
+  color: white;
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.session-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.session-id {
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+
+.session-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.session-chip {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.session-chip.tomtom {
+  background: rgba(5,150,105,0.3);
+  border-color: rgba(5,150,105,0.5);
+}
+
+/* ── Route Flow ───────────────────────────── */
+.route-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+
+.route-node-badge {
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.route-node-badge.origin {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.route-node-badge.spot {
+  background: #eff6ff;
+  color: var(--primary);
+}
+
+.route-flow-arrow {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+/* ── Map ──────────────────────────────────── */
+.map-box {
+  height: 360px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
+}
+
+/* ── Seg Table ────────────────────────────── */
+.seg-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.seg-table th {
+  background: #f8fafc;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  border-bottom: 2px solid var(--border);
+}
+
+.seg-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.seg-table tfoot td {
+  background: #f8fafc;
+  font-weight: 600;
+}
+
+.tomtom-row {
+  background: #f0fdf4;
+}
+
+.step-num {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.badge-tomtom { background: #dcfce7; color: #15803d; }
+.badge-rf { background: #eff6ff; color: var(--primary); }
+.badge-distance { background: #fefce8; color: #854d0e; }
+.badge-service { background: #ecfdf5; color: #15803d; }
+
+.tomtom-badge {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+/* ── Savings Card ─────────────────────────── */
+.savings-card {
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  border: 1px solid #86efac;
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.savings-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #15803d;
+  margin-bottom: 12px;
+}
+
+.savings-details {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.savings-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+}
+
+.savings-value {
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.savings-value.good { color: #15803d; }
+.savings-value.bad { color: #b91c1c; }
+
+/* ── Routes Table ─────────────────────────── */
+.routes-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.routes-table th {
+  background: #f8fafc;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 2px solid var(--border);
+}
+
+.routes-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.optimal-row {
+  background: #f0fdf4;
+  border-left: 3px solid #22c55e;
+}
+
+.worst-row {
+  background: #fef2f2;
+  border-left: 3px solid #ef4444;
+}
+
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+
+.rank-badge.rank-1 { background: #fef9c3; color: #854d0e; }
+.rank-badge.rank-top { background: #f1f5f9; color: #475569; }
+.rank-badge.rank-other { background: #f1f5f9; color: #64748b; }
+.rank-badge.rank-last { background: #fee2e2; color: #b91c1c; }
+
+.route-path {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.route-node-item {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  background: #eff6ff;
+  color: var(--primary);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.route-path-arrow {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.time-cell {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.optimal-time {
+  color: #15803d;
+}
+
+.time-breakdown {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 400;
+}
+
+.diff-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.diff-badge.optimal { background: #dcfce7; color: #15803d; }
+.diff-badge.non-optimal { background: #f1f5f9; color: #64748b; }
+
+.routes-footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ── Info Row ─────────────────────────────── */
+.info-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-top: 20px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.info-value {
+  font-weight: 600;
+  font-size: 0.85rem;
+}

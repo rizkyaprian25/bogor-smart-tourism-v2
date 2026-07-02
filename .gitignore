@@ -1,0 +1,148 @@
+# ============================================================
+# PYTHON
+# ============================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ============================================================
+# FLASK
+# ============================================================
+instance/
+.webassets-cache
+.env
+.flaskenv
+
+# ============================================================
+# JUPYTER NOTEBOOK
+# ============================================================
+.ipynb_checkpoints/
+*.ipynb
+
+# ============================================================
+# DATA & MODEL FILES (UKURAN BESAR)
+# ============================================================
+data/*.csv
+models/*.pkl
+plots/*.png
+plots/*.jpg
+plots/*.pdf
+
+# Kecuali file contoh/template
+!data/master_lokasi.csv
+!data/README.md
+
+# ============================================================
+# DATABASE & CREDENTIALS
+# ============================================================
+*.db
+*.sqlite
+*.sqlite3
+supabase_credentials.json
+service_account.json
+*.secret
+credentials.py
+secrets.py
+config_local.py
+*_credentials.*
+*api_key*
+*apikey*
+
+# ============================================================
+# IDE & EDITOR
+# ============================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ============================================================
+# DOCKER
+# ============================================================
+*.log
+docker-compose.override.yml
+
+# ============================================================
+# LOGS & TEMP
+# ============================================================
+logs/
+*.log
+temp/
+tmp/
+*.tmp
+*.cache
+
+# ============================================================
+# ENVIRONMENT VARIABLES (PALING PENTING — API KEY & SECRET DI SINI)
+# ============================================================
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ============================================================
+# BACKUP FILES
+# ============================================================
+*.bak
+*.backup
+backup/
+
+# ============================================================
+# OS SPECIFIC
+# ============================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================================
+# CUSTOM - BOGOR SMART TOURISM
+# ============================================================
+# Session files
+flask_session/
+session/
+
+# Upload files
+uploads/
+
+# Cache files
+.cache/
+*.cache
+
+# Test files
+test_*.py
+*_test.py
+debug_*.py
+
+# __pycache__ tambahan (proyek ini punya folder __pycache__ di root)
+__pycache__/

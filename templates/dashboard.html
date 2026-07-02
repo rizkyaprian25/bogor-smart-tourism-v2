@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Teknikal — Bogor Smart Tourism{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+    <div>
+      <h1>Dashboard Evaluasi</h1>
+      <p class="subtitle">Random Forest Prediction Matrix & OR-Tools Solver</p>
+    </div>
+    <a href="/itinerary" class="btn-back-map">Kembali ke Maps</a>
+  </div>
+
+  <!-- Info TomTom -->
+  {% if result.has_custom_origin and result.gmaps_segment %}
+  <div class="tomtom-card">
+    <div class="tomtom-content">
+      <div class="tomtom-title">TomTom Real-Time — Segmen Awal</div>
+      <div class="tomtom-details">
+        <div class="tomtom-item">Dari: <strong>Lokasi Anda</strong></div>
+        <div class="tomtom-item">Ke: <strong>{{ result.gmaps_segment.to_name }}</strong></div>
+        <div class="tomtom-item">Waktu: <strong>{{ result.gmaps_segment.travel_time }} mnt</strong></div>
+        <div class="tomtom-item">Jarak: <strong>{{ result.gmaps_segment.distance_km }} km</strong></div>
+        <div class="tomtom-item">Sumber: <strong>{{ result.gmaps_segment.source }}</strong></div>
+        <div class="tomtom-item">Kendaraan: <strong>{{ result.vehicle_icon|default('') }} {{ result.vehicle_type|default('mobil')|title }}</strong></div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Rolling Clock Matrices -->
+  <div class="section-header">
+    <h2>Rolling Clock Matrices — Time-Dependent</h2>
+  </div>
+
+  {% if result.rolling_matrices %}
+  <div class="rolling-matrices-container">
+    {% for md in result.rolling_matrices %}
+    <div class="rolling-matrix-card">
+      <div class="matrix-header">
+        <span class="matrix-step">Langkah {{ md.step }}</span>
+        <span class="matrix-time">{{ md.departure_time }}</span>
+        <span class="matrix-from">{{ md.from_node }}</span>
+        <span class="matrix-arrow">→</span>
+        <span class="matrix-to">{{ md.to_node }}</span>
+      </div>
+      <div class="matrix-selected-info">
+        <div class="matrix-selected-label">Waktu dipilih:</div>
+        <div class="matrix-selected-value">{{ "%.1f"|format(md.selected_travel_time|default(0)) }} menit</div>
+        <div class="matrix-selected-route">{{ md.from_node }} → {{ md.to_node }} (berangkat {{ md.departure_time }})</div>
+      </div>
+      <div class="matrix-wrapper">
+        <table class="matrix-table" id="rm-{{ md.step }}">
+          <thead>
+            <tr>
+              <th class="sticky-col">Asal \ Tujuan</th>
+              {% for label in md.labels %}<th>{{ label|truncate(15) }}</th>{% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in range(md.size) %}
+            <tr>
+              <td class="sticky-col">{{ md.labels[i]|truncate(20) }}</td>
+              {% for j in range(md.size) %}
+                {% if i==j %}<td class="diagonal">—</td>
+                {% else %}<td class="matrix-cell" data-value="{{ md.matrix[i][j] }}">{{ "%.1f"|format(md.matrix[i][j]) }}</td>
+                {% endif %}
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="matrix-footer">
+        <span class="matrix-size">{{ md.size }}×{{ md.size }}</span>
+        <span>{{ md.from_node }} → <strong>{{ md.to_node }}</strong> ({{ "%.1f"|format(md.selected_travel_time|default(0)) }} menit)</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card empty-state">
+    <p>Data matriks akan muncul setelah proses optimasi.</p>
+  </div>
+  {% endif %}
+
+  <!-- Detail Segmen -->
+  <div class="section-header">
+    <h2>Detail Segmen Rute Optimal</h2>
+  </div>
+
+  <div class="card">
+    <table class="route-table">
+      <thead>
+        <tr>
+          <th>#</th><th>Dari</th><th>Ke</th><th>Berangkat</th>
+          <th>Waktu Tempuh</th><th>Status</th><th>Tiba</th><th>Jarak</th>
+          <th>Kunjungan</th><th>Berangkat Lagi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for step in result.itinerary %}
+        <tr {% if step.is_google_maps %}class="tomtom-row"{% endif %}>
+          <td class="step-number">{{ step.step }}</td>
+          <td>
+            {{ step.from_name }}
+            {% if step.is_google_maps %}<span class="tomtom-indicator">Real-time</span>{% endif %}
+          </td>
+          <td><strong>{{ step.to_name }}</strong></td>
+          <td class="mono">{{ step.departure }}</td>
+          <td>
+            {% if step.is_google_maps %}
+              <span class="badge badge-google">TomTom {{ step.travel_time }} mnt</span>
+            {% else %}
+              <span class="badge badge-travel">RF {{ step.travel_time }} mnt</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if step.is_google_maps %}
+              <span class="text-muted">—</span>
+            {% elif step.congestion_label is defined and step.congestion_label %}
+              <span class="congestion-badge {{ step.congestion_class }}">{{ step.congestion_label }}</span>
+            {% endif %}
+          </td>
+          <td class="mono">{{ step.arrival }}</td>
+          <td><span class="badge badge-distance">{{ "%.2f"|format(step.distance_km) }} km</span></td>
+          <td>
+            {% if step.service_time > 0 %}
+              <span class="badge badge-service">{{ step.service_time }} mnt</span>
+            {% else %}<span class="text-muted">—</span>{% endif %}
+          </td>
+          <td>
+            {% if not step.is_depot_arrival %}
+              <span class="mono">{{ step.depart_next }}</span>
+            {% else %}<span class="text-muted">Selesai</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4" class="text-right">TOTAL</td>
+          <td><span class="badge badge-travel">{{ "%.1f"|format(result.total_travel_min) }} mnt</span></td>
+          <td></td>
+          <td colspan="2"><span class="badge badge-distance">{{ "%.2f"|format(result.total_distance_km) }} km</span></td>
+          <td colspan="2"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Pola Kemacetan per Segmen -->
+  <div class="section-header">
+    <h2>Pola Kemacetan per Segmen Sepanjang Hari</h2>
+    <span class="badge">{{ result.hari_label }} · {{ result.vehicle_icon }} {{ result.vehicle_type|title }}</span>
+  </div>
+
+  <div id="segmentChartsContainer">
+    {% for step in result.itinerary %}
+      {% if not step.is_google_maps and not step.is_depot_arrival %}
+      <div class="card" style="margin-bottom: 16px;">
+        <div style="font-size: 0.82rem; font-weight: 600; margin-bottom: 8px; color: var(--text);">
+          Segmen: {{ step.from_name }} → {{ step.to_name }}
+          <span style="font-weight: 400; color: var(--muted); margin-left: 8px;">
+            (Prediksi RF: {{ step.travel_time }} mnt · berangkat {{ step.departure }})
+          </span>
+        </div>
+        <canvas id="chartSegment{{ step.from_id }}_{{ step.to_id }}" height="90"></canvas>
+        <div class="chart-legend" style="margin-top: 8px;">
+          <span><span class="legend-color" style="background:#dcfce7;"></span> Lancar</span>
+          <span><span class="legend-color" style="background:#fef9c3;"></span> Sedang</span>
+          <span><span class="legend-color" style="background:#ffedd5;"></span> Padat</span>
+          <span><span class="legend-color" style="background:#fee2e2;"></span> Macet</span>
+        </div>
+      </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- Perbandingan Rute -->
+  <div class="section-header">
+    <h2>Perbandingan Semua Kemungkinan Rute</h2>
+    <span class="badge">{{ result.total_permutations }} permutasi</span>
+  </div>
+
+  <div class="savings-card">
+    <div class="savings-content">
+      <div class="savings-title">
+        Penghematan: {{ "%.1f"|format(result.savings_minutes) }} menit
+        ({{ "%.1f"|format(result.savings_percent) }}% lebih cepat)
+      </div>
+      <div class="savings-details">
+        <div class="savings-item">
+          <span class="savings-label">Tercepat:</span>
+          <span class="savings-value good">{{ "%.1f"|format(result.optimal_time) }} mnt</span>
+        </div>
+        <div class="savings-item">
+          <span class="savings-label">Terlambat:</span>
+          <span class="savings-value bad">{{ "%.1f"|format(result.worst_time) }} mnt</span>
+        </div>
+        <div class="savings-item">
+          <span class="savings-label">Selisih:</span>
+          <span class="savings-value">{{ "%.1f"|format(result.savings_minutes) }} mnt</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table class="routes-table">
+      <thead>
+        <tr><th>Rank</th><th>Rute</th><th>Total Waktu</th><th>Jarak</th><th>Selisih</th></tr>
+      </thead>
+      <tbody>
+        {% for route in result.display_routes %}
+        {% set rank = loop.index %}
+        {% set diff = route.total_time - result.optimal_time %}
+        {% set pct = (diff / result.optimal_time * 100) if result.optimal_time > 0 else 0 %}
+        <tr class="{% if route.is_optimal %}optimal-row{% elif route.is_worst %}worst-row{% endif %}">
+          <td>
+            {% if route.is_optimal %}<span class="rank-badge rank-1">1</span>
+            {% elif route.is_worst %}<span class="rank-badge rank-last">{{ rank }}</span>
+            {% elif rank <= 3 %}<span class="rank-badge rank-{{ rank }}">{{ rank }}</span>
+            {% else %}<span class="rank-badge rank-other">{{ rank }}</span>{% endif %}
+          </td>
+          <td>
+            <div class="route-path">
+              {% for name in route.route_short %}
+                <span class="route-node">{{ name }}</span>
+                {% if not loop.last %}<span class="route-arrow">→</span>{% endif %}
+              {% endfor %}
+            </div>
+          </td>
+          <td class="time-cell">
+            <span class="{% if route.is_optimal %}optimal-time{% endif %}">
+              {{ "%.1f"|format(route.total_time) }} mnt
+            </span>
+            {% if route.tomtom_time is defined and route.rf_time is defined %}
+            <br><small class="time-breakdown">(TomTom {{ route.tomtom_time }} + RF {{ "%.2f"|format(route.rf_time) }})</small>
+            {% endif %}
+          </td>
+          <td class="time-cell">{{ "%.2f"|format(route.total_distance) }} km</td>
+          <td>
+            {% if route.is_optimal %}
+              <span class="diff-badge optimal">OPTIMAL</span>
+            {% else %}
+              <span class="diff-badge non-optimal">+{{ "%.1f"|format(diff) }} mnt ({{ "%.1f"|format(pct) }}%)</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="routes-footer">
+      <p>Menampilkan {{ result.display_routes|length }} rute dari ({{ result.total_permutations }} permutasi)</p>
+      <p class="text-muted">Waktu = total perjalanan + waktu tunggu | Rute tidak valid = tempat tutup / waktu tunggu > 15 menit</p>
+    </div>
+  </div>
+
+  <!-- Model Metrics -->
+  <div class="section-header">
+    <h2>Akurasi Model Random Forest</h2>
+    <span class="badge">{{ result.vehicle_icon|default('') }} {{ result.vehicle_type|default('mobil')|title }} · {{ result.hari_label }}</span>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric-card blue">
+      <div class="metric-label">MAE</div>
+      <div class="metric-value">{{ result.model_metrics.mae }} <span class="unit">menit</span></div>
+      <div class="metric-desc">Mean Absolute Error</div>
+    </div>
+    <div class="metric-card orange">
+      <div class="metric-label">RMSE</div>
+      <div class="metric-value">{{ "%.2f"|format(result.model_metrics.rmse) }} <span class="unit">menit</span></div>
+      <div class="metric-desc">Root Mean Squared Error</div>
+    </div>
+    <div class="metric-card green">
+      <div class="metric-label">R² Score</div>
+      <div class="metric-value">{{ "%.4f"|format(result.model_metrics.r2) }}</div>
+      <div class="metric-desc">Koefisien Determinasi</div>
+    </div>
+    <div class="metric-card teal">
+      <div class="metric-label">CV MAE (5-Fold)</div>
+      <div class="metric-value">{{ "%.5f"|format(result.model_metrics.cv_mae) }} <span class="unit">± {{ "%.5f"|format(result.model_metrics.cv_std) }}</span></div>
+      <div class="metric-desc">Cross-Validation</div>
+    </div>
+    <div class="metric-card purple">
+      <div class="metric-label">MSE</div>
+      <div class="metric-value">{{ "%.2f"|format(result.model_metrics.mse) }}</div>
+      <div class="metric-desc">Mean Squared Error</div>
+    </div>
+    <div class="metric-card red">
+      <div class="metric-label">Waktu Eksekusi</div>
+      <div class="metric-value">{{ "%.0f"|format(result.execution_time_ms) }} <span class="unit">ms</span></div>
+      <div class="metric-desc">RF + OR-Tools + TomTom</div>
+    </div>
+  </div>
+
+  <!-- Perbandingan Model Motor vs Mobil -->
+  <div class="section-header">
+    <h2>Perbandingan Model Motor vs Mobil</h2>
+    <span class="badge" id="compBadge">Memuat...</span>
+  </div>
+  <div class="card">
+    <table class="comparison-table">
+      <thead>
+        <tr><th>Metrik</th><th>Mobil</th><th>Motor</th><th>Lebih Baik</th></tr>
+      </thead>
+      <tbody id="compTableBody">
+        <tr><td colspan="4" class="text-center text-muted">Memuat data perbandingan...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-center" style="margin-top:30px;">
+    <a href="/itinerary" class="btn-back-map">Kembali ke Maps</a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  window.DASHBOARD_DATA = {
+    itinerary: {{ result.itinerary | tojson }},
+    rollingMatrices: {{ result.rolling_matrices | tojson }},
+    displayRoutes: {{ result.display_routes | tojson }},
+    vehicleType: '{{ result.vehicle_type|default("mobil") }}',
+    isWeekend: {{ result.is_weekend|default(0) }},
+    routeIds: {{ result.route_ids|tojson }},
+    startTime: '{{ result.start_time }}',
+    pairThresholds: {{ result.pair_thresholds|tojson }},
+    modelMetrics: {
+      mae: {{ result.model_metrics.mae }},
+      mse: {{ result.model_metrics.mse }},
+      rmse: {{ "%.4f"|format(result.model_metrics.rmse) }},
+      r2: {{ "%.4f"|format(result.model_metrics.r2) }},
+      cv_mae: {{ "%.5f"|format(result.model_metrics.cv_mae) }},
+      cv_std: {{ "%.5f"|format(result.model_metrics.cv_std) }}
+    },
+    activeVehicle: '{{ result.vehicle_type|default("mobil") }}',
+    totalPermutations: {{ result.total_permutations|default(0) }},
+    optimalTime: {{ result.optimal_time|default(0) }},
+    worstTime: {{ result.worst_time|default(0) }},
+    savingsMinutes: {{ result.savings_minutes|default(0) }},
+    savingsPercent: {{ result.savings_percent|default(0) }}
+  };
+</script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

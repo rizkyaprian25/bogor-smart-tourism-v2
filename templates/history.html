@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Riwayat Perjalanan — Bogor Smart Tourism{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/history.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="page-header">
+    <h1>Riwayat Perjalanan</h1>
+    <p class="subtitle">Klik <strong>Lihat Detail</strong> untuk melihat analisis lengkap</p>
+  </div>
+
+  {% if history %}
+  <div class="history-list">
+    {% for h in history %}
+    <div class="history-card" data-history-id="{{ h.id }}">
+
+      <div class="history-card-header">
+        <div class="history-timestamp">{{ h.timestamp[:16].replace('T',' ') if h.timestamp else '-' }}</div>
+        <div class="history-chips">
+          <span class="chip">{{ h.hari }}</span>
+          <span class="chip">Berangkat {{ h.jam_berangkat }}</span>
+        </div>
+      </div>
+
+      <div class="history-route">
+        <div class="history-route-label">Urutan Rute</div>
+        <div class="history-route-flow">
+          {% if h.rute_optimal %}
+            {% for node in h.rute_optimal %}
+              <span class="route-node-item">{{ node.name }}</span>
+              {% if not loop.last %}<span class="route-arrow">→</span>{% endif %}
+            {% endfor %}
+          {% else %}
+            <span class="text-muted">Data rute tidak tersedia</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="history-card-footer">
+        <div class="history-metrics">
+          <div class="history-metric">
+            <span class="metric-label">Total Waktu</span>
+            <span class="metric-value">{{ h.total_waktu_menit | round(1) }} menit</span>
+          </div>
+          <div class="history-metric">
+            <span class="metric-label">Total Jarak</span>
+            <span class="metric-value">{{ h.total_jarak_km | round(2) }} km</span>
+          </div>
+          <div class="history-metric">
+            <span class="metric-label">Solver</span>
+            <span class="metric-value">{{ h.solver_used or '-' }}</span>
+          </div>
+        </div>
+        <div class="history-actions">
+          <a href="/history/{{ h.id }}" class="btn-detail">Lihat Detail</a>
+          <button class="btn-delete" onclick="deleteHistory('{{ h.id }}')">Hapus</button>
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="card empty-state">
+    <p>Belum ada riwayat perjalanan</p>
+    <a href="/" class="btn-primary">Buat Itinerary Pertama</a>
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- Modal Konfirmasi Hapus -->
+<div id="deleteOverlay" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <h3>Hapus Riwayat?</h3>
+    <p>Tindakan ini tidak dapat dibatalkan.</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="hideDeleteConfirm()">Batal</button>
+      <button class="btn-confirm-delete" onclick="executeDelete()">Ya, Hapus</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock %}

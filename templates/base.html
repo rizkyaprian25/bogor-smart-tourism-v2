@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Bogor Smart Tourism{% endblock %}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Custom CSS (global all in one file) -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <span class="brand-title">Bogor Smart Tourism</span>
+      </div>
+
+      <div class="nav-area">
+        {% if session.username %}
+        <nav class="nav-pills">
+          <a class="nav-pill" href="/">Beranda</a>
+          <a class="nav-pill" href="/dashboard">Dashboard</a>
+          <a class="nav-pill" href="/history">Riwayat</a>
+        </nav>
+        <div class="user-badge">
+          <div class="avatar">{{ session.username[0]|upper }}</div>
+          {{ session.username }}
+        </div>
+        <a class="nav-pill danger" href="/logout">Keluar</a>
+        {% else %}
+        <a class="nav-pill" href="/login">Masuk</a>
+        <a class="nav-pill" href="/register">Daftar</a>
+        {% endif %}
+      </div>
+    </header>
+
+    <main>{% block content %}{% endblock %}</main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="spinner"></div>
+      <div class="loading-text">Memproses...</div>
+      <div class="loading-sub">Random Forest & OR-Tools bekerja</div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Custom JS (global all in one file) -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

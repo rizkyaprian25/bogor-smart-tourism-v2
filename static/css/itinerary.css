@@ -1,0 +1,327 @@
+/* ============================================================
+   ITINERARY PAGE
+   ============================================================ */
+
+.layout {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+/* ── Timeline Panel ───────────────────────── */
+.timeline-panel {
+  background: white;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+
+/* Summary Strip */
+.summary-strip {
+  background: #0f172a;
+  color: white;
+  padding: 20px;
+}
+
+.summary-title {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+  margin-bottom: 14px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.summary-item {
+  text-align: center;
+}
+
+.summary-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.summary-label {
+  font-size: 0.62rem;
+  opacity: 0.6;
+  margin-top: 2px;
+}
+
+.route-summary {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.72rem;
+  line-height: 1.6;
+}
+
+.route-summary strong {
+  color: #93c5fd;
+}
+
+/* Timeline */
+.timeline {
+  padding: 20px;
+}
+
+.timeline-date {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tomtom-badge {
+  font-size: 0.6rem;
+  background: #dcfce7;
+  color: #15803d;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+/* Timeline Step */
+.timeline-step {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 4px;
+  position: relative;
+}
+
+.timeline-step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 18px;
+  top: 36px;
+  bottom: -8px;
+  width: 1px;
+  background: var(--border);
+}
+
+.timeline-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  z-index: 1;
+}
+
+.timeline-dot.origin { background: #059669; color: white; }
+.timeline-dot.spot   { background: var(--primary); color: white; }
+.timeline-dot.finish { background: #d97706; color: white; }
+.timeline-dot.travel { background: var(--bg); border-color: var(--border); }
+.timeline-dot.stay   { background: #ecfdf5; border-color: #a7f3d0; }
+
+.timeline-content {
+  flex: 1;
+  padding-bottom: 14px;
+}
+
+/* Content Types */
+.tomtom-segment {
+  background: #f0fdf4;
+  border: 1px solid #a7f3d0;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.depart-segment {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.arrival-segment {
+  background: var(--primary-light);
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.finish-segment {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.stay-segment {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.travel-info {
+  display: flex;
+  gap: 10px;
+  padding: 6px 0;
+}
+
+.event-header {
+  font-weight: 600;
+  font-size: 0.82rem;
+  margin-bottom: 4px;
+}
+
+.event-meta {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.event-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.badge-tomtom { background: #dcfce7; color: #15803d; }
+.badge-depart { background: #ffedd5; color: #c2410c; }
+.badge-arrive { background: var(--primary-light); color: var(--primary); }
+.badge-finish { background: #ffedd5; color: #c2410c; }
+
+.travel-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.travel-chip.tomtom   { background: #dcfce7; color: #15803d; }
+.travel-chip.rf       { background: #eff6ff; color: var(--primary); }
+.travel-chip.distance { background: #fefce8; color: #854d0e; }
+
+/* ── Map ──────────────────────────────────── */
+.map-container {
+  height: 100%;
+  position: relative;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
+}
+
+.map-legend {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: white;
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  z-index: 1000;
+  font-size: 0.72rem;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legend-dot.origin { background: #059669; }
+.legend-dot.spot   { background: var(--primary); }
+
+/* ============================================================
+   POPUP FOTO DESTINASI — dipakai di semua halaman peta
+   ============================================================ */
+
+/* Override Leaflet default popup agar lebih bersih */
+.dest-popup .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  border: 1px solid #e5e7eb;
+}
+
+.dest-popup .leaflet-popup-content {
+  margin: 0;
+  padding: 14px;
+  font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.4;
+}
+
+/* Tip (segitiga bawah popup) */
+.dest-popup .leaflet-popup-tip-container {
+  margin-top: -1px;
+}
+
+.dest-popup .leaflet-popup-tip {
+  box-shadow: none;
+}
+
+/* Tombol close */
+.dest-popup .leaflet-popup-close-button {
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  font-size: 16px;
+  line-height: 22px;
+  color: #6b7280;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  text-align: center;
+  transition: background 0.15s, color 0.15s;
+  z-index: 10;
+}
+
+.dest-popup .leaflet-popup-close-button:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+/* Foto dalam popup — animasi fade-in */
+.dest-popup img {
+  display: block;
+  width: 100%;
+  border-radius: 8px;
+  animation: popupImgFade 0.25s ease;
+}
+
+@keyframes popupImgFade {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

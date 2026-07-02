@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Hasil Itinerary — Bogor Smart Tourism{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/itinerary.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="layout">
+  
+  <!-- TIMELINE PANEL -->
+  <div class="timeline-panel">
+    <div class="summary-strip">
+      <div class="summary-title">Ringkasan Perjalanan</div>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="summary-value">{{ "%.0f"|format(result.total_travel_min) }}</div>
+          <div class="summary-label">Menit di Jalan</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-value">{{ "%.1f"|format(result.total_distance_km) }}</div>
+          <div class="summary-label">Kilometer</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-value">{{ result.num_destinations }}</div>
+          <div class="summary-label">Destinasi</div>
+        </div>
+      </div>
+
+      <div class="route-summary">
+        <strong>Urutan:</strong>
+        {% for node in result.nodes_info %}
+          {{ node.name }}{% if not loop.last %} → {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-date">
+        {{ result.hari_label }} · Mulai {{ result.start_time }}
+        {% if result.has_custom_origin %}<span class="tomtom-badge">TomTom Aktif</span>{% endif %}
+      </div>
+
+      {% for step in result.itinerary %}
+        {% if step.is_google_maps %}
+        <!-- TomTom Segment -->
+        <div class="timeline-step">
+          <div class="timeline-dot origin"></div>
+          <div class="timeline-content tomtom-segment">
+            <div class="event-header">{{ step.from_name }}</div>
+            <div class="event-meta">Berangkat: <strong>{{ step.departure }}</strong></div>
+            <span class="event-badge badge-tomtom">TomTom → {{ step.to_name }}</span>
+          </div>
+        </div>
+
+        <div class="timeline-step">
+          <div class="timeline-dot travel"></div>
+          <div class="timeline-content travel-info">
+            <span class="travel-chip tomtom">{{ step.travel_time }} menit (Real-time)</span>
+            <span class="travel-chip distance">{{ "%.2f"|format(step.distance_km) }} km</span>
+          </div>
+        </div>
+
+        <div class="timeline-step">
+          <div class="timeline-dot spot">1</div>
+          <div class="timeline-content arrival-segment">
+            <div class="event-header">{{ step.to_name }}</div>
+            <div class="event-meta">Tiba: <strong>{{ step.arrival }}</strong></div>
+            <span class="event-badge badge-arrive">Wisata Pertama</span>
+          </div>
+        </div>
+
+        {% elif not step.is_depot_arrival %}
+        <!-- Regular RF Segment -->
+        <div class="timeline-step">
+          <div class="timeline-dot spot">{{ loop.index }}</div>
+          <div class="timeline-content depart-segment">
+            <div class="event-header">{{ step.from_name }}</div>
+            <div class="event-meta">Berangkat: <strong>{{ step.departure }}</strong></div>
+            <span class="event-badge badge-depart">Menuju {{ step.to_name }}</span>
+          </div>
+        </div>
+
+        <div class="timeline-step">
+          <div class="timeline-dot travel"></div>
+          <div class="timeline-content travel-info">
+            <span class="travel-chip rf">{{ step.travel_time }} menit (RF)</span>
+            <span class="travel-chip distance">{{ "%.2f"|format(step.distance_km) }} km</span>
+          </div>
+        </div>
+
+        <div class="timeline-step">
+          <div class="timeline-dot spot">{{ loop.index + 1 }}</div>
+          <div class="timeline-content arrival-segment">
+            <div class="event-header">{{ step.to_name }}</div>
+            <div class="event-meta">Tiba: <strong>{{ step.arrival }}</strong></div>
+          </div>
+        </div>
+
+        {% else %}
+        <!-- Final Segment -->
+        <div class="timeline-step">
+          <div class="timeline-dot spot">{{ loop.index }}</div>
+          <div class="timeline-content depart-segment">
+            <div class="event-header">{{ step.from_name }}</div>
+            <div class="event-meta">Berangkat: <strong>{{ step.departure }}</strong></div>
+            <span class="event-badge badge-depart">Menuju {{ step.to_name }}</span>
+          </div>
+        </div>
+
+        <div class="timeline-step">
+          <div class="timeline-dot travel"></div>
+          <div class="timeline-content travel-info">
+            <span class="travel-chip rf">{{ step.travel_time }} menit (RF)</span>
+            <span class="travel-chip distance">{{ "%.2f"|format(step.distance_km) }} km</span>
+          </div>
+        </div>
+
+        <div class="timeline-step">
+          <div class="timeline-dot finish">✓</div>
+          <div class="timeline-content finish-segment">
+            <div class="event-header">{{ step.to_name }}</div>
+            <div class="event-meta">Tiba: <strong>{{ step.arrival }}</strong></div>
+            <span class="event-badge badge-finish">Perjalanan Selesai</span>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if step.service_time > 0 %}
+        <div class="timeline-step">
+          <div class="timeline-dot stay">⏱</div>
+          <div class="timeline-content stay-segment">
+            <div class="event-header">Menikmati {{ step.to_name }}</div>
+            <div class="event-meta">
+              {{ step.arrival }} – {{ step.depart_next }}
+              · Durasi: <strong>{{ step.service_time }} menit</strong>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div class="map-container">
+    <div id="map"></div>
+    <div class="map-legend" id="mapLegend">
+      {% if result.has_custom_origin %}
+      <div class="legend-item">
+        <span class="legend-dot origin"></span>
+        <span>Titik Awal</span>
+      </div>
+      {% endif %}
+      {% for node in result.nodes_info %}
+        {% if not node.is_origin %}
+        <div class="legend-item">
+          <span class="legend-dot spot"></span>
+          <span>{{ node.name|truncate(20) }}</span>
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  window.ITINERARY_DATA = {
+    nodesInfo: {{ result.nodes_info | tojson }},
+    itinerary: {{ result.itinerary | tojson }},
+    hasOrigin: {{ 'true' if result.has_custom_origin else 'false' }}
+  };
+</script>
+<script src="{{ url_for('static', filename='js/itinerary.js') }}"></script>
+{% endblock %}
