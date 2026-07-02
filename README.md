@@ -2,7 +2,7 @@
 
 Aplikasi web yang membantu wisatawan merencanakan rute perjalanan wisata di Kota Bogor secara lebih efisien. Sistem tidak hanya menyusun urutan destinasi yang ingin dikunjungi, tetapi juga mempertimbangkan **prediksi kemacetan lalu lintas real-time**, sehingga rute yang dihasilkan lebih realistis dan menghemat waktu perjalanan pengguna.
 
-🎥 **Demo:** [Tonton di sini]([#](https://drive.google.com/file/d/15I_QUsRtC1KhCEeMXnjfdkpPvMxHEq9w/view?usp=drive_link)) <!-- ganti # dengan link YouTube/Drive demo Anda -->
+🎥 **Demo:** [Tonton di sini](https://drive.google.com/file/d/15I_QUsRtC1KhCEeMXnjfdkpPvMxHEq9w/view?usp=drive_link) <!-- ganti # dengan link YouTube/Drive demo Anda -->
 
 ---
 
